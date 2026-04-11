@@ -181,6 +181,58 @@ void *generic_max(void *arr, int n, int size, int (*f)(const void *, const void 
 }
 
 // 2. Generic Stack ADT (泛型栈)
+// client需要自己free内存（adt没有自带free function）
+struct stack {
+  int len;
+  int maxlen;
+  void **data;                                               //! (NEW)
+};
+
+struct stack *stack_create(void) {
+  struct stack *s = malloc(sizeof(struct stack));
+  s->len = 0;
+  s->maxlen = 1;
+  s->data = malloc(s->maxlen * sizeof(void *));              //!
+  return s;
+}
+  
+// requires: s is empty                                      //!
+void stack_destroy(struct stack *s) {
+  assert(s);
+  assert(stack_is_empty(s));                                 //!
+  free(s->data);
+  free(s);
+}
+
+bool stack_is_empty(const struct stack *s) {
+  assert(s);
+  return s->len == 0;
+}
+
+void stack_push(void *item, struct stack *s) {               //!
+  assert(item);
+  assert(s);
+  if (s->len == s->maxlen) {
+  	s->maxlen *= 2;
+  	s->data = realloc(s->data, s->maxlen * sizeof(void *));  //!
+  }
+  s->data[s->len] = item;
+  s->len += 1;
+}
+
+const void *stack_top(const struct stack *s) {               //!
+  assert(s);
+  assert(!stack_is_empty(s));
+  return s->data[s->len - 1];
+}
+
+void *stack_pop(struct stack *s) {                           //!
+  assert(s);
+  assert(!stack_is_empty(s));
+  s->len -= 1;
+  return s->data[s->len];
+}
+
 // Purpose: The stack structure uses an array of void pointers (void **data) to store generic items. 
 // Crucially, it stores a function pointer free_item which dictates how each specific item should be freed when the stack is destroyed. 
 // Efficiency: O(1) space overhead for the wrapper.
@@ -202,12 +254,12 @@ struct stack *stack_create(void (*free_function)(void *)) {
     s->maxlen = 1;
     s->data = malloc(s->maxlen * sizeof(void *));
     s->free_item = free_function; // 保存这个“清理秘籍”
-    
     return s;
 }
 
 // Purpose: stack_destroy safely cleans up all memory. It loops through every stored generic item and 
 // calls the stored free_item function on it before freeing the array and the wrapper itself. 
+// no longer requires stack to be empty
 // Efficiency: O(n) time complexity.
 void stack_destroy(struct stack *s) {
     assert(s);
@@ -226,15 +278,45 @@ void stack_destroy(struct stack *s) {
 
 // Purpose: stack_push adds a generic item (a void * pointer) to the stack, using the standard dynamic array doubling strategy. 
 // Efficiency: O(1) amortized time complexity.
+// 这个函数跟之前没变
 void stack_push(void *item, struct stack *s) {
     assert(item);
     assert(s);
-    
     if (s->len == s->maxlen) {
         s->maxlen *= 2;
         s->data = realloc(s->data, s->maxlen * sizeof(void *));
     }
-    
     s->data[s->len] = item;
     s->len += 1;
+}
+
+// top和pop的函数也跟没有adt自带free function的版本一样
+
+
+// gerneric dictionary adt stored in a bst
+struct dictionary {
+  // ...
+  int (*key_compare)(const void *, const void *);    // func ptr
+};
+  
+struct dictionary *dict_create(int(*compare_function)(void *, void *)) {
+  struct dictionary *d = malloc(sizeof(struct dictionary));
+  d->root = NULL;
+  d->key_compare = compare_function;
+  return d;
+}
+  
+const void *dict_lookup(const void *key,
+  											const struct dictionary *d) {
+  const struct bstnode *node = d->root;
+  while (node) {
+  	int result = d->key_compare(key, node->item);
+  	if (result == 0) return node->value;
+  	if (result < 0 ) {
+  		node = node->left;
+  	} else {
+  		node = node->right;
+  	}
+  }
+  return NULL;
 }

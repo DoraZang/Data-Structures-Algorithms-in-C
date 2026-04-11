@@ -201,6 +201,27 @@ void list_insert_front (struct llist *ll, int item) {
     ll->front = cons(item, ll->front);
 }
 
+// insert(i, slst) inserts i into sorted list slst
+// requires: slst is sorted [not asserted]
+// effects:  modifies slst
+// time:     O(n), where n is the length of slst
+void insert(int i, struct llist *slst) {
+  if (slst->front == NULL || i < slst->front->data) {
+    add_front(i, slst);
+  } else {
+    // find the node that will be "before" our insert
+    struct llnode *before = slst->front;
+    while (before->next && i > before->next->data) {
+      before = before->next;
+    }
+    // now do the insert
+    struct llnode *newnode = malloc(sizeof(struct llnode)); 
+    newnode->data = i;
+    newnode->next = before->next;
+    before->next = newnode;
+  }
+}
+
 // 5. Traversing and Operating on Wrapped Lists
 // Purpose: list_length iteratively calculates the length of the list by 
 // traversing the internal nodes with a while loop.
@@ -311,5 +332,21 @@ struct llist *list_cp(const struct llist *ll) {
     return new_list;
 }
 
-
+// hard copy a linked list (iterative approach)
+struct llist *list_cp(const struct llist *oldlist) {
+    struct llist *newlist = list_create();
+    if (oldlist->front) {
+        list_insert_front(newlist, oldlist->front->data);
+        const struct llnode *oldnode = oldlist->front->next;
+        struct llnode *newnode = newlist->front;
+        while(oldnode) {
+            newnode->next = malloc(sizeof(struct llnode));
+            newnode = newnode->next;
+            newnode->data = oldnode->data;
+            newnode->next = NULL;
+            oldnode = oldnode->next;
+        }
+    }
+    return newlist;
+}
 
