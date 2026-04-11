@@ -76,11 +76,17 @@ struct bstnode *make_leaf (int item) {
 
 void bstnode_insert(struct bstnode *n, int item) {
     if (item < n->item) { // must insert to the left
-        if (n->left == NULL) n->left = make_leaf(item);
-        else bstnode_insert(n->left, item);
+        if (n->left == NULL) {
+            n->left = make_leaf(item);
+        } else {
+            bstnode_insert(n->left, item);
+        } 
     } else if (item > n->item) { // must insert to the right
-        if (n->right == NULL) n->right = make_leaf (item);
-        else bstnode_insert(n->right, item);
+        if (n->right == NULL) {
+            n->right = make_leaf (item);
+        } else {
+            bstnode_insert(n->right, item);
+        } 
     }
 }
 
@@ -308,6 +314,27 @@ struct bstnode {
     struct bstnode *right;
     int count; //*****NEW
 };
+
+static struct bstnode *new_leaf(int i) {
+  struct bstnode *leaf = malloc(sizeof(struct bstnode)); 
+  leaf->item = i;
+  leaf->count = 1;
+  leaf->left = NULL;
+  leaf->right = NULL;
+  return leaf;
+}
+
+
+// update_count(node) updates the count augmentation
+// effects: mutates node->count
+static void update_count(struct bstnode *node) {
+  if (node) {
+    node->count = 1;
+    if (node->left) node->count += node->left->count;
+    if (node->right) node->count += node->right->count;
+  }
+}
+
 
 // Purpose: select_node and bst_select find the item with index k in the tree, 
 // where the index is the position in the sorted order of the items (e.g., select(0) finds the smallest item). 
