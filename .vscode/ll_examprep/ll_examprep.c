@@ -251,16 +251,6 @@ int list_length (struct llist *lst) {
     return length_nodes(lst->front, 0);
 }
 
-// Purpose: list_cp_bad demonstrates a BAD (shallow) copy 
-// of a list wrapper. It only copies the front pointer, 
-// meaning the original list and the new list now share the exact same nodes 
-// (mutating one will corrupt the other).
-// Efficiency: O(1)
-struct llist *list_cp_bad(struct llist *ll){
-    struct llist *newlist = malloc(sizeof(struct llist));
-    newlist->front = ll->front;
-    return newlist;
-}
 
 // Purpose: list_remove_front safely removes the first node 
 // in the wrapped list, frees its memory, and returns its value.
@@ -300,6 +290,17 @@ bool list_remove_value (struct llist *lst, int val) {
     free(old_node);
     
     return true;
+}
+
+// Purpose: list_cp_bad demonstrates a BAD (shallow) copy 
+// of a list wrapper. It only copies the front pointer, 
+// meaning the original list and the new list now share the exact same nodes 
+// (mutating one will corrupt the other).
+// Efficiency: O(1)
+struct llist *list_cp_bad(struct llist *ll){
+    struct llist *newlist = malloc(sizeof(struct llist));
+    newlist->front = ll->front;
+    return newlist;
 }
 
 // 5.5 Deep Copying Lists (深拷贝链表)
