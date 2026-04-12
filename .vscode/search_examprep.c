@@ -24,7 +24,7 @@ int find(int item, const int a[], int len) {
 // time: O(log n)
 int find_sorted(int item, const int a[], int len) {
   assert(a);
-  assert(len > 0); 
+  assert(len > 0);
   int low = 0;
   int high = len - 1;
   while (low <= high) {
