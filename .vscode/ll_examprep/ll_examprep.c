@@ -350,4 +350,3 @@ struct llist *list_cp(const struct llist *oldlist) {
     }
     return newlist;
 }
-
