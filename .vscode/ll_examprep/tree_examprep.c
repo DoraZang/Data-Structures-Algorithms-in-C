@@ -221,6 +221,36 @@ struct bstnode *find_min(struct bstnode *node) {
     return node;
 }
 
+// 假设 target 是你要找的元素
+void print_search_path(const struct bst* bst, int target) {
+    if (bst == NULL || bst->root == NULL) {
+        printf("Tree is empty.\n");
+        return;
+    }
+
+    struct bstnode* current = bst->root;
+    printf("Search Path: ");
+
+    while (current != NULL) {
+        // 沿途留记号：打印当前经过的节点
+        printf("%d ", current->item);
+
+        if (target == current->item) {
+            printf("\nTarget %d found!\n", target);
+            return; // 找到了，结束函数
+        } else if (target < current->item) {
+            // 目标比当前节点小，往左走
+            current = current->left;
+        } else {
+            // 目标比当前节点大，往右走
+            current = current->right;
+        }
+    }
+
+    // 如果循环结束了还没 return，说明走到底（NULL）都没找到
+    printf("\nTarget %d not found in the BST.\n", target);
+}
+
 struct bstnode *remove_node(struct bstnode *node, int val) {
     if (node == NULL) {
         return node;
